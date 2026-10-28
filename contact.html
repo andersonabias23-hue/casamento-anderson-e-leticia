@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10283e">
+  <meta name="description" content="Informações sobre confirmação de presença no casamento de Anderson e Letícia.">
+  <title>Confirme presença | Anderson &amp; Letícia</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="site-nav" aria-label="Navegação principal">
+    <a class="brand" href="index.html">A <span>&amp;</span> L</a>
+    <ul>
+      <li><a href="index.html">Início</a></li>
+      <li><a href="marriage.html">O casamento</a></li>
+      <li><a class="active" href="contact.html" aria-current="page">Confirme presença</a></li>
+    </ul>
+  </nav>
+
+  <main class="page-main rsvp-main">
+    <header class="page-heading">
+      <p class="eyebrow">VAI SER UMA ALEGRIA TER VOCÊ COM A GENTE</p>
+      <h1>Confirme sua presença</h1>
+      <p>Esperamos você no dia <time datetime="2027-04-10">10 de abril de 2027</time>, às <time datetime="15:00">15h</time>. Preencha os dados abaixo para confirmar.</p>
+    </header>
+
+    <section class="rsvp-card" aria-labelledby="rsvp-title">
+      <span class="detail-icon" aria-hidden="true">A &amp; L</span>
+      <h2 id="rsvp-title">Você vem celebrar com a gente?</h2>
+      <p class="rsvp-intro">Sua resposta será preparada para envio pelo WhatsApp.</p>
+
+      <form class="rsvp-form" id="rsvp-form">
+        <label class="form-label" for="guest-name">Seu nome</label>
+        <input id="guest-name" name="name" type="text" autocomplete="name" placeholder="Como podemos identificar você?" required>
+
+        <fieldset class="attendance-options">
+          <legend class="form-label">Você poderá comparecer?</legend>
+          <label class="attendance-option">
+            <input type="radio" name="attendance" value="Sim, estarei presente!" required>
+            <span>Sim, estarei presente!</span>
+          </label>
+          <label class="attendance-option">
+            <input type="radio" name="attendance" value="Infelizmente, não poderei comparecer.">
+            <span>Infelizmente, não poderei comparecer.</span>
+          </label>
+        </fieldset>
+
+        <fieldset class="attendance-options" id="companions-section" hidden>
+          <legend class="form-label">Terá acompanhantes?</legend>
+          <label class="attendance-option">
+            <input type="radio" name="companions" value="yes" disabled>
+            <span>Sim</span>
+          </label>
+          <label class="attendance-option">
+            <input type="radio" name="companions" value="no" disabled>
+            <span>Não</span>
+          </label>
+        </fieldset>
+
+        <div class="companions-count" id="companions-count-section" hidden>
+          <label class="form-label" for="companions-count">Quantos acompanhantes?</label>
+          <input id="companions-count" name="companionsCount" type="number" min="1" step="1" inputmode="numeric" placeholder="Informe a quantidade" disabled>
+        </div>
+
+        <button class="button rsvp-submit" type="submit">Preparar confirmação <span aria-hidden="true">&rarr;</span></button>
+      </form>
+
+      <div class="rsvp-result" id="rsvp-result" aria-live="polite" hidden>
+        <p id="rsvp-message"></p>
+        <a class="button" id="whatsapp-link" href="#" target="_blank" rel="noopener noreferrer">Enviar pelo WhatsApp <span aria-hidden="true">&rarr;</span></a>
+        <p class="rsvp-note">Toque no botão, e escolha a conversa com Anderson ou Letícia e envie a mensagem. A confirmação só será realizada depois que você tocar em “Enviar” no WhatsApp.</p>
+      </div>
+
+      <a class="text-link rsvp-details-link" href="marriage.html">Confira as informações do casamento <span aria-hidden="true">&rarr;</span></a>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Feito com amor por Anderson &amp; Letícia, e que Deus vos abençoe</p>
+  </footer>
+  <script>
+    const rsvpForm = document.querySelector('#rsvp-form');
+    const rsvpResult = document.querySelector('#rsvp-result');
+    const rsvpMessage = document.querySelector('#rsvp-message');
+    const whatsappLink = document.querySelector('#whatsapp-link');
+    const companionsSection = document.querySelector('#companions-section');
+    const companionsCountSection = document.querySelector('#companions-count-section');
+    const companionsCount = document.querySelector('#companions-count');
+    const companionsOptions = rsvpForm.querySelectorAll('input[name="companions"]');
+
+    rsvpForm.querySelectorAll('input[name="attendance"]').forEach((input) => {
+      input.addEventListener('change', () => {
+        const isAttending = input.value === 'Sim, estarei presente!' && input.checked;
+        companionsSection.hidden = !isAttending;
+        companionsOptions.forEach((option) => {
+          option.disabled = !isAttending;
+          option.required = isAttending;
+          if (!isAttending) option.checked = false;
+        });
+        if (!isAttending) {
+          companionsCountSection.hidden = true;
+          companionsCount.disabled = true;
+          companionsCount.required = false;
+          companionsCount.value = '';
+        }
+      });
+    });
+
+    companionsOptions.forEach((input) => {
+      input.addEventListener('change', () => {
+        const hasCompanions = input.value === 'yes' && input.checked;
+        companionsCountSection.hidden = !hasCompanions;
+        companionsCount.disabled = !hasCompanions;
+        companionsCount.required = hasCompanions;
+        if (!hasCompanions) companionsCount.value = '';
+      });
+    });
+
+    rsvpForm.addEventListener('input', () => {
+      rsvpResult.hidden = true;
+    });
+
+    rsvpForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(rsvpForm);
+      const guestName = formData.get('name').trim();
+      const attendance = formData.get('attendance');
+      const hasCompanions = formData.get('companions') === 'yes';
+      const companionCount = Number(formData.get('companionsCount'));
+      const companionsResponse = attendance === 'Sim, estarei presente!'
+        ? hasCompanions
+          ? ` Levarei ${companionCount} acompanhante${companionCount === 1 ? '' : 's'}.`
+          : ' Não levarei acompanhantes.'
+        : '';
+      const message = `Olá, Anderson e Letícia! Aqui é ${guestName}. ${attendance}${companionsResponse} Minha presença está confirmada para o seu casamento.`;
+
+      rsvpMessage.textContent = `Obrigado, ${guestName}! Era você mesmo quem esperávamos.`;
+      whatsappLink.href = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      rsvpResult.hidden = false;
+      whatsappLink.focus();
+    });
+  </script>
+</body>
+</html>
